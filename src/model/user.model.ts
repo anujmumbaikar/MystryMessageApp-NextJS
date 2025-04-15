@@ -62,3 +62,8 @@ const UserSchema:Schema<User> = new Schema({
     },
     message:[MessageSchema]
 })
+
+//this is case where we are checking if the model is already created or not
+// mongoose.models.User (write models because here we are expecting the model is already created or not)
+const UserModel = (mongoose.models.User as mongoose.Model<User>) || mongoose.model<User>("User",UserSchema);
+export default UserModel;
