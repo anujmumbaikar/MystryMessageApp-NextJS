@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-
 type ConnectionObject = {
     isConnected?: number;
 }
@@ -10,7 +9,7 @@ async function dbConnect():Promise<void>{
         return;
     }
     try {
-        const connectionInstance = await mongoose.connect(process.env.MONGODB_URI || "")
+        const connectionInstance = await mongoose.connect(`${process.env.MONGODB_URI}/mystrymessage` || "")
         connection.isConnected = connectionInstance.connections[0].readyState;
         console.log("Connected to MongoDB");
         
