@@ -46,10 +46,28 @@ function page() {
         }
       }
     }
+    checkUsernameUnique()
   },[debouncedUsername])
 
+  const onSubmit = async(data:z.infer<typeof signUpSchema>)=>{
+    setIsSubmitting(true)
+    try {
+      const response = await axios.post('/api/sign-up',data)
+      toast.success(response.data.message)
+      router.replace(`/verify/${username}`)
+    } catch (error) {
+      console.log("error in sign up",error);
+      const AxiosError = error as AxiosError<ApiResponse>
+      let message = AxiosError.response?.data.message ?? "error in sign up"
+      toast.error(message)
+    }finally{
+      setIsSubmitting(false)
+    }
+  }
+
+
   return (
-    <div>page</div>
+    <div ></div>
   )
 }
 
