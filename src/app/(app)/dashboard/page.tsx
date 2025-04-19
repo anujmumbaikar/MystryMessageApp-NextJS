@@ -27,7 +27,7 @@ function page() {
   //and if error comes in backend then we need to revert the state.
 
   const handleDeleteMessage = (messageId:string) => {
-    setMessages(messages.filter((message)=> message.id !== messageId)) //this line is doing optimistic UI
+    setMessages(messages.filter((message)=> message._id !== messageId)) //this line is doing optimistic UI
   }
   const {data:session} = useSession()
   const form = useForm({
