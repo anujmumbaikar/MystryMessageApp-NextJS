@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 import { ApiResponse } from "@/types/ApiResponse";
 
-// Setup transporter (can be in a separate file too)
+
 export const transporter = nodemailer.createTransport({
   service: 'gmail',
   port:465,
@@ -12,7 +12,6 @@ export const transporter = nodemailer.createTransport({
   },
 });
 
-// This is a simple email template — you can replace it with your JSX/HTML version
 const generateEmailHTML = (username: string, otp: string) => {
   return `
     <div>
