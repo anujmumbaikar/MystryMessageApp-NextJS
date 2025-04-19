@@ -24,7 +24,7 @@ export interface User extends Document {
     verificationCodeExpires:Date;
     isAcceptingMessage:boolean;
     isVerified:boolean;
-    message:Message[]
+    messages:Message[]
 
 }
 const UserSchema:Schema<User> = new Schema({
@@ -60,7 +60,7 @@ const UserSchema:Schema<User> = new Schema({
         type:Boolean,
         default:true
     },
-    message:[MessageSchema]
+    messages:[MessageSchema]
 })
 
 //this is case where we are checking if the model is already created or not
