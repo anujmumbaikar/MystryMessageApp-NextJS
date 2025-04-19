@@ -27,7 +27,7 @@ export async function POST(request: Request) {
             content,
             createdAt: new Date(),
         }
-        user.message.push(newMessage as Message)
+        user.messages.push(newMessage as Message)
         await user.save()
         return Response.json({
             success:true,
