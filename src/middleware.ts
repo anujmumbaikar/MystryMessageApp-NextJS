@@ -41,8 +41,6 @@ export { default } from 'next-auth/middleware'
 export async function middleware(request: NextRequest) {
   const token = await getToken({ req: request })
   const url = request.nextUrl
-
-  // 🔒 If user is authenticated and tries to visit public pages, redirect to dashboard
   if (
     token &&
     (
@@ -55,7 +53,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
-  // 🔐 If user is NOT authenticated and tries to visit dashboard, redirect to sign-in
   if (!token && url.pathname.startsWith('/dashboard')) {
     return NextResponse.redirect(new URL('/sign-in', request.url))
   }

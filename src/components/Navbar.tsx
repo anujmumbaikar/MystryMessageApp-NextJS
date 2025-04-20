@@ -12,23 +12,19 @@ import { Button } from './ui/button'
 
 function Navbar() {
   const { data: session } = useSession()
-  const user: User = session?.user as User // ✅ correctly typed user
+  const user: User = session?.user as User
 
   return (
     <nav className='p-4 md:p-6 shadow-md'>
       <div className='container mx-auto flex flex-col md:flex-row justify-between items-center'>
-        {/* ✅ Fixed typo: font-bol ➡ font-bold */}
         <a className="text-xl font-bold mb-4 md:mb-0" href="#">Mystry Message</a>
 
         {
           // now authenticated hoga then session hoga.
           session ? (
             <>
-              {/* ✅ Safe fallback: username || email */}
               <span className='mr-4'>Welcome, {user?.username || user?.email}</span>
 
-              {/* ❌ FIXED: You were not calling signOut — it was passed as a reference
-                  ✅ SOLUTION: Call it with () and optional callbackUrl to redirect after logout */}
               <Button
                 className='w-full md:w-auto'
                 onClick={() => signOut({ callbackUrl: '/' })}
