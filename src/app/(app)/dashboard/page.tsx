@@ -11,77 +11,71 @@ import axios from 'axios'
 import { Loader2, RefreshCcw } from 'lucide-react'
 import { User } from 'next-auth'
 import { useSession } from 'next-auth/react'
-import React, {useCallback, useEffect } from 'react'
-import { useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-function page() {
+
+function Page() {
   const [messages, setMessages] = useState<Message[]>([])
-  const [isLoading,setLoading] = useState(false)
-  const [isSwitchLoading,setSwitchLoading] = useState(false)
+  const [isLoading, setLoading] = useState(false)
+  const [isSwitchLoading, setSwitchLoading] = useState(false)
+  const [profileUrl, setProfileUrl] = useState('')
 
-  //optimistic UI -- (very important)
-  //for eg. when we like a post, we see that use liked a post.
-  //but in backend it may happen after some time.
-  //and if error comes in backend then we need to revert the state.
-
-  const handleDeleteMessage = (messageId:string) => {
-    setMessages(messages.filter((message)=> message._id !== messageId)) //this line is doing optimistic UI
-  }
-  const {data:session} = useSession()
+  const { data: session } = useSession()
   const form = useForm({
-    resolver:zodResolver(acceptMessageSchema)
+    resolver: zodResolver(acceptMessageSchema)
   })
 
-  const {register,watch,setValue} = form  //check documentation react-hook-form
-  //we are extracting some values from form 
-  //register is used to register the input fields
-  //watch is used to watch the value of the input fields
-  //setValue is used to set the value of the input fields
-
-  //earlier in sign-up or sign-in we hv directly used from.handleSubmit
-
+  const { register, watch, setValue } = form
   const acceptMessages = watch('acceptMessages')
-  const fetchAcceptMessage = useCallback(async()=>{
+
+  const handleDeleteMessage = (messageId: string) => {
+    setMessages(messages.filter((message) => message._id !== messageId))
+  }
+
+  const fetchAcceptMessage = useCallback(async () => {
     setSwitchLoading(true)
     try {
-       const response = await axios.get<ApiResponse>('/api/accept-messages')
-       setValue('acceptMessages', response.data.isAcceptingMessage ?? false)
+      const response = await axios.get<ApiResponse>('/api/accept-messages')
+      setValue('acceptMessages', response.data.isAcceptingMessage ?? false)
     } catch (error) {
       toast.error('Something went wrong')
-    }finally{
+    } finally {
       setSwitchLoading(false)
     }
-  },[setValue])
+  }, [setValue])
 
-  const fetchMessages = useCallback(async(refresh:boolean = false)=>{ 
+  const fetchMessages = useCallback(async (refresh: boolean = false) => {
     setLoading(true)
     setSwitchLoading(false)
     try {
       const response = await axios.get<ApiResponse>('/api/get-messages')
       setMessages(response.data.messages || [])
-      if(refresh){
+      if (refresh) {
         toast.success('Messages refreshed')
       }
-    } catch (error) {    
+    } catch (error) {
       toast.error('Something went wrong')
-    }finally{
+    } finally {
       setLoading(false)
       setSwitchLoading(false)
     }
-  },[setLoading,setMessages])
-
+  }, [])
 
   useEffect(() => {
-    if(!session || !session?.user) return;
+    if (!session || !session?.user) return
     fetchMessages()
     fetchAcceptMessage()
-  },[session,setValue,fetchMessages,fetchAcceptMessage])
 
-  //handle switch change
+    const user: User = session.user as User
+    const username = user?.username || user?.email
+    const baseUrl = `${window.location.protocol}//${window.location.host}`
+    setProfileUrl(`${baseUrl}/u/${username}`)
+  }, [session, setValue, fetchMessages, fetchAcceptMessage])
+
   const handleSwitchChange = async () => {
     try {
-      const response = await axios.post<ApiResponse>('/api/accept-messages',{
+      const response = await axios.post<ApiResponse>('/api/accept-messages', {
         acceptMessages: !acceptMessages
       })
       setValue('acceptMessages', !acceptMessages)
@@ -90,18 +84,13 @@ function page() {
       toast.error('Something went wrong')
     }
   }
-  const user:User = session?.user as User
-  const username = user?.username || user?.email
-
-  const baseUrl = `${window.location.protocol}//${window.location.host}`
-  const profileUrl = `${baseUrl}/u/${username}`
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(profileUrl)  //navigator comes from 'use client'
+    navigator.clipboard.writeText(profileUrl)
     toast.success('Link copied to clipboard')
   }
 
-  if(!session || !session?.user){
+  if (!session || !session?.user) {
     return <div>Please Login</div>
   }
 
@@ -110,7 +99,7 @@ function page() {
       <h1 className="text-4xl font-bold mb-4">User Dashboard</h1>
 
       <div className="mb-4">
-        <h2 className="text-lg font-semibold mb-2">Copy Your Unique Link</h2>{' '}
+        <h2 className="text-lg font-semibold mb-2">Copy Your Unique Link</h2>
         <div className="flex items-center">
           <input
             type="text"
@@ -133,14 +122,15 @@ function page() {
           Accept Messages: {acceptMessages ? 'On' : 'Off'}
         </span>
       </div>
+
       <Separator />
 
       <Button
         className="mt-4"
         variant="outline"
         onClick={(e) => {
-          e.preventDefault();
-          fetchMessages(true);
+          e.preventDefault()
+          fetchMessages(true)
         }}
       >
         {isLoading ? (
@@ -149,9 +139,10 @@ function page() {
           <RefreshCcw className="h-4 w-4" />
         )}
       </Button>
+
       <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
         {messages.length > 0 ? (
-          messages.map((message, index) => (
+          messages.map((message) => (
             <MessageCard
               key={message._id as string}
               message={message}
@@ -163,7 +154,7 @@ function page() {
         )}
       </div>
     </div>
-  );
+  )
 }
 
-export default page
+export default Page
